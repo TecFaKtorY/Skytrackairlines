@@ -168,6 +168,7 @@ footer{padding:1.2rem;text-align:center;color:#062033;margin-top:1rem}
 
 <main class="container" role="main">
   <div class="card-grid">
+
     <!-- TRACK -->
     <section id="track" class="card" aria-labelledby="track-heading">
       <div class="track-title">
@@ -182,6 +183,7 @@ footer{padding:1.2rem;text-align:center;color:#062033;margin-top:1rem}
 
       <form name="track-flight" method="POST" data-netlify="true" id="trackForm" style="margin-top:1rem">
         <input type="hidden" name="form-name" value="track-flight">
+        <input type="hidden" name="bot-field" /> <!-- honeypot -->
         <div class="track-input" role="search" aria-label="ticket search">
           <input id="ticketIdInput" name="ticket-id" type="text" placeholder="e.g. TF-01234" aria-label="Ticket ID" required>
           <button type="submit" class="btn btn-primary">Track</button>
@@ -198,10 +200,9 @@ footer{padding:1.2rem;text-align:center;color:#062033;margin-top:1rem}
 
       <form name="book-flight" method="POST" data-netlify="true" id="bookFlightForm">
         <input type="hidden" name="form-name" value="book-flight" />
+        <input type="hidden" name="bot-field" /> <!-- honeypot -->
         <input type="hidden" id="ticketId" name="ticket-id" value="">
-        
-         <input type="hidden" id="status" name="status" value="pending">
-        
+        <input type="hidden" id="status" name="status" value="pending">
         <input type="hidden" id="totalPrice" name="total-price" value="">
 
         <div class="form-row">
@@ -290,10 +291,10 @@ footer{padding:1.2rem;text-align:center;color:#062033;margin-top:1rem}
 <footer>
   &copy; 2025 SkyTrack Airlines. All Rights Reserved.
 </footer>
+
+<!-- ===================== Scripts ===================== -->
 <script>
-// =====================
-// Mobile nav toggle
-// =====================
+// ===== Mobile Nav =====
 const menuBtn = document.getElementById('menuBtn');
 const mobileNav = document.getElementById('mobileNav');
 
@@ -307,74 +308,60 @@ function closeMobileNav() {
   mobileNav.setAttribute('aria-hidden', 'true');
 }
 
-// =====================
-// Return date toggle
-// =====================
+// ===== Toggle Return Date =====
 function toggleReturnDate() {
   const tripType = document.getElementById('trip_type').value;
   const returnDiv = document.getElementById('returnDateDiv');
-  if(tripType === 'roundtrip') {
-    returnDiv.style.display = 'block';
-  } else {
-    returnDiv.style.display = 'none';
-  }
+  returnDiv.style.display = tripType === 'roundtrip' ? 'block' : 'none';
 }
 
-// =====================
-// Price calculation
-// =====================
+// ===== Auto-generate Ticket ID =====
+function generateTicketId() {
+  const prefix = 'TF-';
+  const random = Math.floor(1000 + Math.random() * 9000); // 4-digit number
+  return prefix + random;
+}
+
+// ===== Update Price Display =====
 function updatePrice() {
   const classType = document.getElementById('class_type').value;
-  let price = 0;
-  if(classType === 'economy') price = 200;
-  else if(classType === 'business') price = 500;
-  else if(classType === 'first') price = 1000;
+  let basePrice = 100; // base price for economy
+  if (classType === 'business') basePrice = 250;
+  if (classType === 'first') basePrice = 500;
 
   const tripType = document.getElementById('trip_type').value;
-  if(tripType === 'roundtrip') price *= 2;
+  if (tripType === 'roundtrip') basePrice *= 2;
 
-  document.getElementById('priceDisplay').innerText = `Estimated Price: $${price}`;
-  document.getElementById('totalPrice').value = price;
+  document.getElementById('priceDisplay').textContent = 'Estimated Price: $' + basePrice;
+  document.getElementById('totalPrice').value = basePrice;
 }
 
-// Initialize default price
-updatePrice();
-
-// =====================
-// Booking form submission
-// =====================
+// ===== Handle Book Form Submission =====
 const bookForm = document.getElementById('bookFlightForm');
-const bookPopup = document.getElementById('bookPopupMessage');
-
-bookForm.addEventListener('submit', (e) => {
-  // Generate random Ticket ID
-  const ticketId = 'TF-' + Math.floor(Math.random() * 90000 + 10000);
-  document.getElementById('ticketId').value = ticketId;
+bookForm.addEventListener('submit', function(e) {
+  // Set ticket ID before submission
+  document.getElementById('ticketId').value = generateTicketId();
+  updatePrice(); // ensure totalPrice is set
 
   // Show popup
-  e.preventDefault(); // Prevent actual form submission for demo
-  bookPopup.classList.add('show');
-  setTimeout(() => bookPopup.classList.remove('show'), 4000);
-
-  // Optionally reset form
-  bookForm.reset();
-  toggleReturnDate(); // hide return date if needed
-  updatePrice(); // reset price
+  const popup = document.getElementById('bookPopupMessage');
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 4000);
 });
 
-// =====================
-// Tracking form submission
-// =====================
+// ===== Handle Track Form Submission =====
 const trackForm = document.getElementById('trackForm');
-const trackPopup = document.getElementById('trackPopupMessage');
+trackForm.addEventListener('submit', function(e) {
+  const popup = document.getElementById('trackPopupMessage');
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 4000);
+});
 
-trackForm.addEventListener('submit', (e) => {
-  e.preventDefault(); // prevent actual submission
-  trackPopup.classList.add('show');
-  setTimeout(() => trackPopup.classList.remove('show'), 4000);
-  trackForm.reset();
+// ===== Initialize default values =====
+document.addEventListener('DOMContentLoaded', () => {
+  toggleReturnDate();
+  updatePrice();
 });
 </script>
-
 </body>
 </html>
