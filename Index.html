@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SkyTrack Airlines ✈️ — Book & Track Flights</title>
+<meta name="description" content="SkyTrack Airlines demo — book and track flights. Netlify-ready." />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --c1:#6a11cb;
+  --c2:#2575fc;
+  --accent:#ffcc00;
+  --glass:rgba(255,255,255,0.92);
+  --muted:#6b7280;
+  --nav-h:64px;
+}
+*{box-sizing:border-box;font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:#07122b;
+  background: linear-gradient(180deg,#f7fbff,#f2f7ff);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+/* NAV */
+nav{
+  position:fixed;left:0;right:0;top:0;z-index:1200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1rem;height:var(--nav-h);
+  background:linear-gradient(90deg, rgba(0,0,0,0.38), rgba(0,0,0,0.15));
+  backdrop-filter: blur(6px);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.nav-left{display:flex;align-items:center;gap:.8rem}
+.logo{display:flex;align-items:center;gap:.6rem;color:#fff;font-weight:700;font-size:1rem;text-decoration:none}
+.logo .plane{width:40px;height:40px;border-radius:8px;background:linear-gradient(90deg,#fff,#f4fbff);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(6,10,30,0.2)}
+.logo img{width:22px;height:22px}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.nav-links{display:flex;gap:.6rem;align-items:center}
+.nav-links a{color:#fff;text-decoration:none;padding:.45rem .7rem;border-radius:8px;font-weight:600;transition:all .15s}
+.nav-links a:hover{background:rgba(255,255,255,0.06);color:var(--accent)}
+.menu-btn{display:none;background:transparent;border:0;color:#fff;font-size:1.4rem;padding:.2rem}
+
+/* HERO */
+.hero{
+  position:relative;
+  height:calc(100vh - var(--nav-h));
+  margin-top:var(--nav-h);
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+}
+.hero::before{
+  content:"";
+  position:absolute;inset:0;z-index:-2;
+  background:linear-gradient(180deg, rgba(12,16,45,0.22), rgba(12,16,45,0.06));
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:-3;pointer-events:none;
+  background-image:url('https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHFneHA2YnBmNHMzMjBkNDQ4NjFyOXgwZG9zZzV4N2l1dmE3cGEyZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TgJ0KKEY8HByASy6Jt/giphy.gif');
+  background-position:center center;background-size:cover;background-repeat:no-repeat;
+  filter: contrast(1.02) saturate(1.05);
+  transform:scale(1.05);
+  opacity:0.98;
+}
+.hero-inner{max-width:1100px;padding:2rem;color:#fff;z-index:10}
+.hero h1{font-size:2.6rem;margin:0 0 .6rem;text-shadow:0 10px 30px rgba(2,6,23,0.5)}
+.hero p{margin:0 0 1rem;font-weight:500;color:rgba(255,255,255,0.95)}
+.hero .ctas{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+.btn{cursor:pointer;border:0;padding:.85rem 1.15rem;border-radius:10px;font-weight:700;transition:transform .18s,box-shadow .18s}
+.btn-primary{background:linear-gradient(90deg,var(--c1),var(--c2));color:#fff;box-shadow:0 12px 36px rgba(37,117,252,0.18)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.12);color:#fff}
+.btn:hover{transform:translateY(-4px)}
+
+/* main container */
+main.container{max-width:1100px;margin:1.2rem auto;padding:1rem;width:100%}
+
+/* grid for track & book */
+.card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.card{background:var(--glass);padding:1.2rem;border-radius:14px;box-shadow:0 12px 40px rgba(6,10,30,0.08);transition:transform .18s, box-shadow .18s;}
+.card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(6,10,30,0.12)}
+
+/* Track */
+.track-title{display:flex;gap:.75rem;align-items:center}
+.small-plane{width:54px;height:54px;border-radius:10px;background:linear-gradient(90deg,#fff,#f5fbff);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(6,10,30,0.08)}
+.track-meta{color:var(--muted);margin-top:.6rem;font-size:.95rem}
+.track-input{display:flex;gap:.6rem;margin-top:.9rem}
+.track-input input{flex:1;padding:.7rem;border-radius:10px;border:1px solid rgba(6,10,30,0.06);font-weight:600}
+.track-result{margin-top:.9rem;color:var(--muted)}
+
+/* Popup Styles */
+.popup {width:80%;position: fixed;top: 10%;left: 50%;transform: translateX(-50%);background: #28a745;color: #fff;padding: 1rem 2rem;border-radius: 12px;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);font-size: 1rem;text-align: center;z-index: 9999;display:none;}
+.popup.show{display:block;}
+
+/* Book form */
+form label{display:block;margin-top:.5rem;font-weight:600;color:#052033}
+input, select{width:100%;padding:.6rem;border-radius:9px;border:1px solid rgba(6,10,30,0.06);margin-top:.3rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.form-row .full{grid-column:1/-1}
+
+/* contact */
+.contact{margin-top:1rem;padding:1rem;border-radius:12px;background:rgba(255,255,255,0.96)}
+
+/* footer */
+footer{padding:1.2rem;text-align:center;color:#062033;margin-top:1rem}
+
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.55), rgba(2,6,23,0.45));display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-backdrop.show{opacity:1;pointer-events:auto}
+.modal{background:#fff;border-radius:12px;padding:1.2rem;max-width:520px;width:92%;box-shadow:0 26px 80px rgba(6,10,30,0.28);transform:translateY(8px);transition:transform .22s}
+.modal h3{margin:0 0 .4rem;color:#062033}
+.modal p{margin:0;color:var(--muted)}
+
+/* mobile nav slide-down */
+.mobile-nav{display:none;background:linear-gradient(180deg,rgba(255,255,255,0.96),#fff);border-bottom:1px solid rgba(6,10,30,0.04);position:absolute;left:0;right:0;top:var(--nav-h);z-index:1100;box-shadow:0 12px 40px rgba(6,10,30,0.12);overflow:hidden;max-height:0;transition:max-height .32s ease}
+.mobile-nav.open{max-height:320px}
+.mobile-nav a{display:block;padding:1rem;border-bottom:1px solid rgba(6,10,30,0.03);color:#052033;text-decoration:none;font-weight:600}
+
+/* responsiveness */
+@media (max-width:980px){.card-grid{grid-template-columns:1fr}.hero h1{font-size:2rem}}
+@media (max-width:720px){.nav-links{display:none}.menu-btn{display:block}.hero{padding:3.2rem 1rem 2rem}.hero h1{font-size:1.6rem}.mobile-nav{display:block}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav aria-label="Main navigation">
+  <div class="nav-left">
+    <a class="logo" href="#home" aria-label="SkyTrack Airlines home">
+      <span class="plane"><img src="img/airplane-1755.svg" alt="plane icon" /></span>
+      SkyTrack Airlines
+    </a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#track">Track</a>
+      <a href="#howItWorks">How It Works</a>
+      <a href="#book">Book</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+  </div>
+  <div id="mobileNav" class="mobile-nav" aria-hidden="true">
+    <a href="#home" onclick="closeMobileNav()">Home</a>
+    <a href="#track" onclick="closeMobileNav()">Track</a>
+    <a href="#howItWorks" onclick="closeMobileNav()">How It Works</a>
+    <a href="#book" onclick="closeMobileNav()">Book</a>
+    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="home" role="banner">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <h1>Welcome to SkyTrack Airlines</h1>
+    <p>Colorful and creative flight booking & tracking — quick requests, manual confirmation by email.</p>
+    <div class="ctas">
+      <button class="btn btn-primary" onclick="document.getElementById('track').scrollIntoView({behavior:'smooth'})">Track Flight</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book Now</button>
+    </div>
+  </div>
+</header>
+
+<main class="container" role="main">
+  <div class="card-grid">
+    <!-- TRACK -->
+    <section id="track" class="card" aria-labelledby="track-heading">
+      <div class="track-title">
+        <div class="small-plane">
+          <img src="img/airplane-1755.svg" alt="plane icon" style="width:26px;height:26px"/>
+        </div>
+        <div>
+          <h2 id="track-heading">Track Your Flight</h2>
+          <div class="track-meta">Enter your Ticket ID — you’ll receive a follow-up email with your flight status shortly.</div>
+        </div>
+      </div>
+
+      <form name="track-flight" method="POST" data-netlify="true" id="trackForm" style="margin-top:1rem">
+        <input type="hidden" name="form-name" value="track-flight">
+        <div class="track-input" role="search" aria-label="ticket search">
+          <input id="ticketIdInput" name="ticket-id" type="text" placeholder="e.g. TF-01234" aria-label="Ticket ID" required>
+          <button type="submit" class="btn btn-primary">Track</button>
+        </div>
+      </form>
+
+      <div id="trackPopupMessage" class="popup">✅ Your tracking request has been received! <br> You’ll get an update from the SkyTrack Airlines team soon.</div>
+    </section>
+
+    <!-- BOOK -->
+    <section id="book" class="card" aria-labelledby="book-heading">
+      <h2 id="book-heading">Book a Flight</h2>
+      <p style="color:var(--muted);margin-top:.2rem">Fill this form to request a booking. Submissions are saved to your Netlify dashboard.</p>
+
+      <form name="book-flight" method="POST" data-netlify="true" id="bookFlightForm">
+        <input type="hidden" name="form-name" value="book-flight" />
+        <input type="hidden" id="ticketId" name="ticket-id" value="">
+        
+         <input type="hidden" id="status" name="status" value="pending">
+        
+        <input type="hidden" id="totalPrice" name="total-price" value="">
+
+        <div class="form-row">
+          <div>
+            <label for="name">Full Name</label>
+            <input id="name" name="name" type="text" required placeholder="Jane Doe">
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required placeholder="you@example.com">
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:.6rem">
+          <div>
+            <label for="from">From</label>
+            <input id="from" name="from" type="text" required placeholder="LOS">
+          </div>
+          <div>
+            <label for="to">To</label>
+            <input id="to" name="to" type="text" required placeholder="ACC">
+          </div>
+        </div>
+
+        <div style="margin-top:.6rem">
+          <label for="trip_type">Trip Type</label>
+          <select id="trip_type" name="trip_type" required onchange="toggleReturnDate()">
+            <option value="oneway">One-Way</option>
+            <option value="roundtrip">Round-Trip</option>
+          </select>
+        </div>
+
+        <div class="form-row" style="margin-top:.6rem" id="datesRow">
+          <div>
+            <label for="flight_date">Departure Date</label>
+            <input id="flight_date" name="flight_date" type="date" required>
+          </div>
+          <div id="returnDateDiv" style="display:none;">
+            <label for="return_date">Return Date</label>
+            <input id="return_date" name="return_date" type="date">
+          </div>
+        </div>
+
+        <div style="margin-top:.6rem">
+          <label for="class_type">Class</label>
+          <select id="class_type" name="class_type" required onchange="updatePrice()">
+            <option value="economy">Economy</option>
+            <option value="business">Business</option>
+            <option value="first">First Class</option>
+          </select>
+        </div>
+
+        <div style="margin-top:.6rem">
+          <label for="message">Message (optional)</label>
+          <input id="message" name="message" type="text" placeholder="Any preferences?">
+        </div>
+
+        <div style="margin-top:.6rem;font-weight:600" id="priceDisplay">Estimated Price: $0</div>
+
+        <div style="margin-top:.9rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+          <button type="submit" class="btn btn-primary">Request Booking</button>
+        </div>
+      </form>
+
+      <div id="bookPopupMessage" class="popup">
+        ✅ Your booking request has been received! <br>
+        You’ll get your Ticket ID once processed from the SkyTrack Airlines team soon.
+      </div>
+    </section>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="howItWorks" class="card" style="margin-top:1rem" aria-labelledby="how-heading">
+    <h2 id="how-heading">How SkyTrack Works</h2>
+    <p style="color:var(--muted)">1. Fill the booking form → 2. Get confirmation by email → 3. Track your flight anytime</p>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="card contact" style="margin-top:1rem">
+    <h2>Contact Us</h2>
+    <p>Email: info.skytrack@example.com</p>
+    <p>Phone: +234-905-032-2014</p>
+  </section>
+</main>
+
+<footer>
+  &copy; 2025 SkyTrack Airlines. All Rights Reserved.
+</footer>
+<script>
+// =====================
+// Mobile nav toggle
+// =====================
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+
+menuBtn.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  mobileNav.setAttribute('aria-hidden', !mobileNav.classList.contains('open'));
+});
+
+function closeMobileNav() {
+  mobileNav.classList.remove('open');
+  mobileNav.setAttribute('aria-hidden', 'true');
+}
+
+// =====================
+// Return date toggle
+// =====================
+function toggleReturnDate() {
+  const tripType = document.getElementById('trip_type').value;
+  const returnDiv = document.getElementById('returnDateDiv');
+  if(tripType === 'roundtrip') {
+    returnDiv.style.display = 'block';
+  } else {
+    returnDiv.style.display = 'none';
+  }
+}
+
+// =====================
+// Price calculation
+// =====================
+function updatePrice() {
+  const classType = document.getElementById('class_type').value;
+  let price = 0;
+  if(classType === 'economy') price = 200;
+  else if(classType === 'business') price = 500;
+  else if(classType === 'first') price = 1000;
+
+  const tripType = document.getElementById('trip_type').value;
+  if(tripType === 'roundtrip') price *= 2;
+
+  document.getElementById('priceDisplay').innerText = `Estimated Price: $${price}`;
+  document.getElementById('totalPrice').value = price;
+}
+
+// Initialize default price
+updatePrice();
+
+// =====================
+// Booking form submission
+// =====================
+const bookForm = document.getElementById('bookFlightForm');
+const bookPopup = document.getElementById('bookPopupMessage');
+
+bookForm.addEventListener('submit', (e) => {
+  // Generate random Ticket ID
+  const ticketId = 'TF-' + Math.floor(Math.random() * 90000 + 10000);
+  document.getElementById('ticketId').value = ticketId;
+
+  // Show popup
+  e.preventDefault(); // Prevent actual form submission for demo
+  bookPopup.classList.add('show');
+  setTimeout(() => bookPopup.classList.remove('show'), 4000);
+
+  // Optionally reset form
+  bookForm.reset();
+  toggleReturnDate(); // hide return date if needed
+  updatePrice(); // reset price
+});
+
+// =====================
+// Tracking form submission
+// =====================
+const trackForm = document.getElementById('trackForm');
+const trackPopup = document.getElementById('trackPopupMessage');
+
+trackForm.addEventListener('submit', (e) => {
+  e.preventDefault(); // prevent actual submission
+  trackPopup.classList.add('show');
+  setTimeout(() => trackPopup.classList.remove('show'), 4000);
+  trackForm.reset();
+});
+</script>
+
+</body>
+</html>
